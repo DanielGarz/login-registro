@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { openDb } from '../db/database';
 import { decrypt } from '../utils/encryption';
@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-function authMiddleware(req, res, next) {
+function authMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -30,11 +30,11 @@ function authMiddleware(req, res, next) {
   }
 }
 
-router.get('/', authMiddleware, (req, res) => {
+router.get('/', authMiddleware, (req: Request, res: Response) => {
   res.json({ message: `Bienvenido, ${req.user.name}` });
 });
 
-router.get('/users', authMiddleware, async (req, res) => {
+router.get('/users', authMiddleware, async (req: Request, res: Response) => {
   try {
     const db = await openDb();
     const users = await db.all('SELECT id, name, email, rfc, card_number FROM users');

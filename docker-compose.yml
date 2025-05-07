@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./database.sqlite:/usr/src/app/database.sqlite
+    environment:
+      - NODE_ENV=production
+      - ENCRYPTION_KEY=your-secret-key-32-chars-long!!
+    restart: unless-stopped

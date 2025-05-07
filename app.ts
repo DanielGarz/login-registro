@@ -24,19 +24,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'API de autenticación',
-    endpoints: {
-      register: '/auth/register',
-      login: '/auth/login',
-      dashboard: '/dashboard'
-    }
-  });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 app.use((req, res) => {
-  res.status(404).json({ error: 'Ruta no encontrada' });
+  res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;

@@ -1,12 +1,14 @@
 {
   "name": "login-registro",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node app.ts",
+    "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down"
   },
   "keywords": [],
   "author": "",
