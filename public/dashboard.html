@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .welcome {
+            font-size: 18px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #f44336;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #d32f2f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .error {
+            color: red;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Panel de Control</h1>
+            <div>
+                <span id="welcome-message" class="welcome">Bienvenido, </span>
+                <button id="logout-btn" class="btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <h2>Lista de Usuarios</h2>
+
+        <div id="loading" class="loading">Cargando usuarios...</div>
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo Electrónico</th>
+                    <th>RFC</th>
+                    <th>Tarjeta</th>
+                </tr>
+            </thead>
+            <tbody id="users-list">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userName = localStorage.getItem('userName');
+
+        if (!token) {
+            window.location.href = '/login.html';
+        } else {
+            document.getElementById('welcome-message').textContent = `Bienvenido, ${userName || 'Usuario'}`;
+
+            loadUsers();
+        }
+
+        async function loadUsers() {
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error-message');
+            const usersListElement = document.getElementById('users-list');
+
+            try {
+                const response = await fetch('/dashboard/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('No se pudo obtener la lista de usuarios');
+                }
+
+                const data = await response.json();
+                loadingElement.style.display = 'none';
+
+                if (data.users && data.users.length > 0) {
+                    let tableContent = '';
+                    data.users.forEach(user => {
+                        tableContent += `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.rfc || 'No disponible'}</td>
+                                <td>${user.cardNumber || 'No disponible'}</td>
+                            </tr>
+                        `;
+                    });
+                    usersListElement.innerHTML = tableContent;
+                } else {
+                    usersListElement.innerHTML = '<tr><td colspan="3">No hay usuarios registrados</td></tr>';
+                }
+            } catch (error) {
+                loadingElement.style.display = 'none';
+                errorElement.textContent = error.message || 'Error al cargar usuarios';
+                errorElement.style.display = 'block';
+                console.error('Error:', error);
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userName');
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>
